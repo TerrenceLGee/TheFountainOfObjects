@@ -16,6 +16,7 @@ public class Game
     private int _perspectiveRow;
     private int _perspectiveCol;
     private bool _playerWon = true;
+    private bool _movedByMaelstrom = false;
     private Adjacency _adjacency;
     private int _rowIndexLimit;
     private int _colIndexLimit;
@@ -42,6 +43,7 @@ public class Game
 
         while (true)
         {
+            _movedByMaelstrom = false;
             Console.WriteLine(PrintBorder());
             Console.WriteLine(AnnounceRoom(_currentRow, _currentCol));
             bool condition1 = _currentRow == _entranceRow;
@@ -75,14 +77,6 @@ public class Game
             }
             else
             {
-                (_perspectiveRow, _perspectiveCol) = MoveDirection(_currentRow, _currentCol, command);
-                if (IsOutOfBounds(_perspectiveRow, _perspectiveCol))
-                {
-                    (_perspectiveRow, _perspectiveCol) = GetProperIndexes(_perspectiveRow, _perspectiveCol);
-                }
-                _currentRow = _perspectiveRow;
-                _currentCol = _perspectiveCol;
-
                 foreach (var item in gameItems)
                 {
                     if (IsSameSpotAsItem(_currentRow, _currentCol, item))
@@ -99,13 +93,33 @@ public class Game
                             _cavern.GameBoard[_currentRow, _currentCol] = GameItem.Empty;
                             (_perspectiveRow, _perspectiveCol) = MaelstromMakeMove(_currentRow, _currentCol);
                             _cavern.GameBoard[_perspectiveRow, _perspectiveCol] = GameItem.Maelstrom;
+                            _movedByMaelstrom = true;
+                            break;
                         }
                     }
                 }
+
                 if (!_playerWon)
                 {
                     break;
                 }
+
+                if (_movedByMaelstrom)
+                {
+                    continue;
+                }
+
+
+                (_perspectiveRow, _perspectiveCol) = MoveDirection(_currentRow, _currentCol, command);
+                if (IsOutOfBounds(_perspectiveRow, _perspectiveCol))
+                {
+                    (_perspectiveRow, _perspectiveCol) = GetProperIndexes(_perspectiveRow, _perspectiveCol);
+                }
+                _currentRow = _perspectiveRow;
+                _currentCol = _perspectiveCol;
+
+
+
 
                 foreach (var item in gameItems)
                 {
