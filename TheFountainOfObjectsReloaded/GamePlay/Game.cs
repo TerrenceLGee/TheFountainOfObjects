@@ -51,6 +51,52 @@ public class Game
             bool condition3 = _currentRow == _fountainRow;
             bool condition4 = _currentCol == _fountainCol;
 
+            foreach (var item in gameItems)
+            {
+                if (IsSameSpotAsItem(_currentRow, _currentCol, item))
+                {
+                    if (item != GameItem.Maelstrom)
+                    {
+                        _playerWon = false;
+                        Console.WriteLine(GetLosingMessage(item));
+                    }
+                    else if (item == GameItem.Maelstrom)
+                    {
+                        Console.WriteLine(GetLosingMessage(item));
+                        (_currentRow, _currentCol) = MakeMoveFromMaelstrom(_currentRow, _currentCol);
+                        _cavern.GameBoard[_currentRow, _currentCol] = GameItem.Empty;
+                        (_perspectiveRow, _perspectiveCol) = MaelstromMakeMove(_currentRow, _currentCol);
+                        _cavern.GameBoard[_perspectiveRow, _perspectiveCol] = GameItem.Maelstrom;
+                        _movedByMaelstrom = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!_playerWon)
+            {
+                break;
+            }
+
+            if (_movedByMaelstrom)
+            {
+                continue;
+            }
+
+            foreach (var item in gameItems)
+            {
+                _adjacency = IsAdjacent(_currentRow, _currentCol, item);
+                if (_adjacency != Adjacency.None)
+                {
+                    break;
+                }
+            }
+
+            if (_adjacency != Adjacency.None)
+            {
+                Console.WriteLine(GetAdjacencyMessage(_adjacency));
+            }
+
             if (condition1 || condition2 || condition3 || condition4)
             {
                 Console.WriteLine(GetSpecialMessage(_currentRow, _currentCol, _cavern.IsFountainEnabled));
@@ -77,39 +123,6 @@ public class Game
             }
             else
             {
-                foreach (var item in gameItems)
-                {
-                    if (IsSameSpotAsItem(_currentRow, _currentCol, item))
-                    {
-                        if (item != GameItem.Maelstrom)
-                        {
-                            _playerWon = false;
-                            Console.WriteLine(GetLosingMessage(item));
-                        }
-                        else if (item == GameItem.Maelstrom)
-                        {
-                            Console.WriteLine(GetLosingMessage(item));
-                            (_currentRow, _currentCol) = MakeMoveFromMaelstrom(_currentRow, _currentCol);
-                            _cavern.GameBoard[_currentRow, _currentCol] = GameItem.Empty;
-                            (_perspectiveRow, _perspectiveCol) = MaelstromMakeMove(_currentRow, _currentCol);
-                            _cavern.GameBoard[_perspectiveRow, _perspectiveCol] = GameItem.Maelstrom;
-                            _movedByMaelstrom = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!_playerWon)
-                {
-                    break;
-                }
-
-                if (_movedByMaelstrom)
-                {
-                    continue;
-                }
-
-
                 (_perspectiveRow, _perspectiveCol) = MoveDirection(_currentRow, _currentCol, command);
                 if (IsOutOfBounds(_perspectiveRow, _perspectiveCol))
                 {
@@ -117,27 +130,6 @@ public class Game
                 }
                 _currentRow = _perspectiveRow;
                 _currentCol = _perspectiveCol;
-
-
-
-
-                foreach (var item in gameItems)
-                {
-                    _adjacency = IsAdjacent(_currentRow, _currentCol, item);
-                    if (_adjacency != Adjacency.None)
-                    {
-                        break;
-                    }
-                }
-
-                if (_adjacency == Adjacency.None)
-                {
-                    continue;
-                }
-                else
-                {
-                    Console.WriteLine(GetAdjacencyMessage(_adjacency));
-                }
             }
         }
 
@@ -250,6 +242,7 @@ public class Game
             Adjacency.Pit => "You feel a draft. There is a pit in a nearby room.",
             Adjacency.Maelstrom => "You hear the growling and groaning of a maelstrom nearby.",
             Adjacency.Amarok => "You can smell the rotten stench of an amarok in a nearby room.",
+            Adjacency.None => "",
         };
     }
 

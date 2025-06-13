@@ -1,4 +1,5 @@
-﻿using TheFountainOfObjectsReloaded.Options;
+﻿using System.Numerics;
+using TheFountainOfObjectsReloaded.Options;
 
 namespace TheFountainOfObjectsReloaded.Fountain;
 public class Cavern
@@ -136,6 +137,68 @@ public class Cavern
         return condition1 && condition2;
     }
 
+    private (int row, int col)[] GetAllIndexesOfItem(GameItem item)
+    {
+        int arraySize = GetCountOfItem(item);
+        (int row, int col)[] indexes = new (int row, int col)[arraySize];
+        int arrayIndex = 0;
+
+        for (int i = 0; i < GameBoard.GetLength(0); i++)
+        {
+            for (int j = 0; j < GameBoard.GetLength(1); j++)
+            {
+                if (GameBoard[i, j] == item)
+                {
+                    indexes[arrayIndex++] = (i, j);
+                }
+            }
+        }
+
+        return indexes;
+    }
+
+    private bool IsCardinalAdjacency(int row, int col, GameItem item)
+    {
+        (int itemRow, int itemCol)[] indexes = GetAllIndexesOfItem(item);
+
+        for (int i = 0; i < indexes.Length; i++)
+        {
+            (int itemRow, int itemCol) = indexes[i];
+            bool condition1 = (row == itemRow) && (Math.Abs(col - itemCol) == 1);
+            bool condition2 = (Math.Abs(row - itemRow) == 1) && (col == itemCol);
+            if (condition1 || condition2)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsDiagonalAdjacency(int row, int col, GameItem item)
+    {
+        (int itemRow, int itemCol)[] indexes = GetAllIndexesOfItem(item);
+
+        for (int i = 0; i < indexes.Length; i++)
+        {
+            (int itemRow, int itemCol) = indexes[i];
+            bool condition1 = (Math.Abs(row - itemRow) == 1);
+            bool condition2 = (Math.Abs(col - itemCol) == 1);
+
+            if (condition1 && condition2)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int GetCountOfItem(GameItem item)
+    {
+        return GameBoard.Cast<object>()
+            .OfType<GameItem>()
+            .Count(i => i == item);
+    }
+
 
     public bool IsAdjacent(int row, int col, GameItem item)
     {
@@ -144,27 +207,7 @@ public class Cavern
             return false;
         }
 
-        bool isAdjacent = false;
-
-        for (int i = 0; i < GameBoard.GetLength(0); i++)
-        {
-            isAdjacent = false;
-            for (int j = 0; j < GameBoard.GetLength(1); j++)
-            {
-                if (GameBoard[i, j] == item)
-                {
-                    int rowDifference = Math.Abs(row - i);
-                    int colDifference = Math.Abs(col - j);
-                    isAdjacent = (rowDifference + colDifference == 1);
-                }
-            }
-            if (isAdjacent)
-            {
-                return true;
-            }
-        }
-
-        return isAdjacent;
+        return IsCardinalAdjacency(row, col, item) || IsDiagonalAdjacency(row, col, item);
     }
 
     public (int row, int col) GetItemIndexes(GameItem item)
