@@ -35,7 +35,7 @@ public class Game
         GameItem[] gameItems = new GameItem[3]
         {
             GameItem.Pit,
-            GameItem.Maelstrom,
+            GameItem.Amarok,
             GameItem.Maelstrom,
         };
         _currentRow = _entranceRow;

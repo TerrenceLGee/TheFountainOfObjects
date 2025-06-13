@@ -15,6 +15,8 @@ if (size == GameSize.Invalid)
 
 
 Cavern cavern = new Cavern(size);
+Console.WriteLine();
+cavern.PrintGameBoard();
 
 Game game = new Game(cavern);
 ClearTheScreen();
