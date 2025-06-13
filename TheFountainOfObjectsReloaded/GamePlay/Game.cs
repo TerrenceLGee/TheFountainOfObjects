@@ -13,8 +13,11 @@ public class Game
     private readonly int _fountainCol;
     private int _currentRow;
     private int _currentCol;
+    private int _shootingRow;
+    private int _shootingCol;
     private int _perspectiveRow;
     private int _perspectiveCol;
+    private int _arrowCount;
     private bool _playerWon = true;
     private bool _movedByMaelstrom = false;
     private Adjacency _adjacency;
@@ -40,6 +43,7 @@ public class Game
         };
         _currentRow = _entranceRow;
         _currentCol = _entranceCol;
+        _arrowCount = 5;
 
         while (true)
         {
@@ -121,9 +125,32 @@ public class Game
                     _cavern.IsFountainEnabled = true;
                 }
             }
+            else if (command == Command.ShootNorth || command == Command.ShootSouth
+                || command == Command.ShootEast || command == Command.ShootWest)
+            {
+                if (_arrowCount > 0)
+                {
+                    (_shootingRow, _shootingCol) = EnableCommand(_currentRow, _currentCol, command);
+
+                    if (ShootEnemy(_shootingRow, _shootingCol))
+                    {
+                        Console.WriteLine("Enemy killed!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("There was nothing in the room to kill.");
+                    }
+                    _arrowCount--;
+                }
+                else
+                {
+                    Console.WriteLine("Sorry you are all out of arrows!");
+                }
+                
+            }
             else
             {
-                (_perspectiveRow, _perspectiveCol) = MoveDirection(_currentRow, _currentCol, command);
+                (_perspectiveRow, _perspectiveCol) = EnableCommand(_currentRow, _currentCol, command);
                 if (IsOutOfBounds(_perspectiveRow, _perspectiveCol))
                 {
                     (_perspectiveRow, _perspectiveCol) = GetProperIndexes(_perspectiveRow, _perspectiveCol);
@@ -138,11 +165,6 @@ public class Game
             Console.WriteLine("\nSorry you were killed and have lost the game!");
             Console.WriteLine("Better luck next time!");
         }
-    }
-
-    private bool IsInRoomWithMaelstrom(int row, int col)
-    {
-        return _cavern.GameBoard[row, col] == GameItem.Maelstrom;
     }
 
     private bool IsOutOfBounds(int row, int col)
@@ -198,20 +220,44 @@ public class Game
             "move south" => Command.South,
             "move east" => Command.East,
             "move west" => Command.West,
+            "shoot north" => Command.ShootNorth,
+            "shoot south" => Command.ShootSouth,
+            "shoot east" => Command.ShootEast,
+            "shoot west" => Command.ShootWest,
             "enable fountain" => Command.EnableFountain,
             _ => Command.Invalid,
         };
     }
 
-    private (int row, int col) MoveDirection(int row, int col, Command command)
+    private (int row, int col) EnableCommand(int row, int col, Command command)
     {
         return command switch
         {
-            Command.North => (--row, col),
-            Command.South => (++row, col),
-            Command.East => (row, ++col),
-            Command.West => (row, --col),
+            Command.North or Command.ShootNorth => (--row, col),
+            Command.South or Command.ShootSouth => (++row, col),
+            Command.East or Command.ShootEast => (row, ++col),
+            Command.West or Command.ShootWest => (row, --col),
         };
+    }
+
+
+    private bool ShootEnemy(int row, int col)
+    {
+        int shootingRow = row;
+        int shootingCol = col;
+
+        while (IsOutOfBounds(shootingRow, shootingCol))
+        {
+            (shootingRow, shootingCol) = GetProperIndexes(shootingRow, shootingCol);
+        }
+
+        if (_cavern.GameBoard[shootingRow, shootingCol] != GameItem.Empty 
+            && _cavern.GameBoard[shootingRow, shootingCol] != GameItem.Pit)
+        {
+            _cavern.GameBoard[shootingRow, shootingCol] = GameItem.Empty;
+            return true;
+        }
+        return false;
     }
 
     private bool CanFountainBeEnabled(int row, int col, bool isEnabled)

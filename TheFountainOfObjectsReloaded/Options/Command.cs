@@ -6,5 +6,9 @@ public enum Command
     East,
     West,
     EnableFountain,
+    ShootNorth,
+    ShootSouth,
+    ShootEast,
+    ShootWest,
     Invalid,
 }

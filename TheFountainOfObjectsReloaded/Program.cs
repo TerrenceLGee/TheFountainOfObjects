@@ -6,6 +6,19 @@ string? input = GetInput();
 int choice = GetChoice(input);
 GameSize size = GetGameSize(choice);
 
+Command[] commands = new Command[]
+{
+    Command.North,
+    Command.South,
+    Command.East,
+    Command.West,
+    Command.ShootNorth,
+    Command.ShootSouth,
+    Command.ShootEast,
+    Command.ShootWest,
+    Command.EnableFountain,
+};
+
 if (size == GameSize.Invalid)
 {
     Console.WriteLine("\nGoodbye!");
@@ -13,10 +26,11 @@ if (size == GameSize.Invalid)
     return;
 }
 
+ClearTheScreen();
+DisplayCommandMenu(commands);
 
 Cavern cavern = new Cavern(size);
 Console.WriteLine();
-cavern.PrintGameBoard();
 
 Game game = new Game(cavern);
 ClearTheScreen();
@@ -68,5 +82,34 @@ GameSize GetGameSize(int choice)
         2 => GameSize.Medium, 
         3 => GameSize.Large,
         _ => GameSize.Invalid,
+    };
+}
+
+void DisplayCommandMenu(Command[] commands)
+{
+    Console.WriteLine("Here are the commands that you are allowed to use");
+    Console.WriteLine("Please make a note of them");
+    for (int i = 0; i < commands.Length; i++)
+    {
+        Console.WriteLine($"{i + 1}. {GetCommandOptionsString(commands[i])}");
+    }
+    Console.WriteLine();
+    ClearTheScreen();
+}
+
+string GetCommandOptionsString(Command command)
+{
+    return command switch
+    {
+        Command.North => "Move North",
+        Command.South => "Move South",
+        Command.East => "Move East",
+        Command.West => "Move West",
+        Command.ShootNorth => "Shoot North",
+        Command.ShootSouth => "Shoot South",
+        Command.ShootEast => "Shoot East",
+        Command.ShootWest => "Shoot West",
+        Command.EnableFountain => "Enable Fountain",
+        _ => "",
     };
 }
