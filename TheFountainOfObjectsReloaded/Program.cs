@@ -33,7 +33,6 @@ Cavern cavern = new Cavern(size);
 Console.WriteLine();
 
 Game game = new Game(cavern);
-ClearTheScreen();
 game.Run();
 
 int GetChoice(string? input)

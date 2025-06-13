@@ -23,6 +23,8 @@ public class Game
     private Adjacency _adjacency;
     private int _rowIndexLimit;
     private int _colIndexLimit;
+    private DateTime _playingTime;
+    private TimeSpan _timeSpentPlaying;
 
     public Game(Cavern cavern)
     {
@@ -45,6 +47,8 @@ public class Game
         _currentCol = _entranceCol;
         _arrowCount = 5;
 
+        _playingTime = DateTime.Now;
+        
         while (true)
         {
             _movedByMaelstrom = false;
@@ -160,11 +164,21 @@ public class Game
             }
         }
 
+        _timeSpentPlaying = DateTime.Now - _playingTime;
+
         if (!_playerWon)
         {
             Console.WriteLine("\nSorry you were killed and have lost the game!");
             Console.WriteLine("Better luck next time!");
         }
+        else
+        {
+            Console.WriteLine("\nCongratulations you are a true programmer!");
+            Console.WriteLine("You have done an incredible job!");
+        }
+
+        Console.WriteLine($"The time it took you to play the game:\n" +
+            $"{_timeSpentPlaying.Hours}h hours {_timeSpentPlaying.Minutes}m minutes {_timeSpentPlaying.Seconds} seconds\n");
     }
 
     private bool IsOutOfBounds(int row, int col)
